@@ -36,7 +36,8 @@ summSimple n = sum [1..n]
 -- #6
 summMedium :: Int -> Int
 summMedium 0 = 0
-summMedium n = sum(init [1..n - 1])
+summMedium n = a + summMedium a
+    where a = n -1
 
 
 main :: IO ()
