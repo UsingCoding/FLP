@@ -2,6 +2,8 @@
 import LWModule
 
 import Data.Set as Set
+import Data.Map as Map
+import Data.Tuple as Tuple
 
 -- Data.List - intersperse
 -- Data.Char - toUpper
@@ -25,3 +27,11 @@ main = do
     print( LWModule.toUpper 'W' )
 
     print( LWModule.toUpper '#' )
+
+    -- Map
+    let specialMap = Map.insert 2 "b" $ Map.singleton 1 "a"
+
+    print $ LWModule.deleteAt 1 specialMap
+
+    let f x = if x == "a" then Just "new a" else Nothing
+    print $ LWModule.mapMaybe f (Map.fromList [(5,"a"), (3,"b")])
