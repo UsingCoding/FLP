@@ -4,184 +4,58 @@ member(X,[_|L]) :- member(X,L).
 % красное, member(1, [1,2,3,1,2,1]), вернет true; true; true; false.
 
 % #2
-fib(X, _) :- X < 1, throw("bad x"), !.
-fib(1, 1) :- !.
-fib(2, 1) :- !.
-fib(X, N) :-  X1 is X - 1, X2 is X - 2, fib(X1, Rest1), fib(X2, Rest2), N is Rest1 + Rest2.
+fib(X, _) :- X < 1, throw("X smaller than zero"), !.
+fib(X, 1) :- !.
+fib(X, N) :- fib(X-1, N1), fib(X-2, N2), N is N1 + N2.
 
-% #3.1
-d(1, Len, Res) :- Res is Len // 2 + Len mod 2, !.
-d(I, Len, Res) :- DecrementedI is I - 1, d(DecrementedI, Len, Ans), Res is Ans // 2 + Ans mod 2, !. 
-
-take(N, _, Xs) :- N =< 0, !, N =:= 0, Xs = [].
-take(_, [], []).
-take(N, [X|Xs], [X|Ys]) :- M is N-1, take(M, Xs, Ys).
-
-shell(List, Res) :- length(List, LengthOfList), shellGapIterator(List, LengthOfList, 1, Res).
-
-shellGapIterator(List, LengthOfList, D, Res) :- 
-    d(D, LengthOfList, Gap)
-    , shellIterator(Gap, List, Res)
-    , Gap is 1
-    , !
-    .
-shellGapIterator(List, LengthOfList, D, Res) :- 
-    d(D, LengthOfList, Gap)
-    , shellIterator(Gap, List, Ans)
-    , IncrementedD is D + 1
-    , shellGapIterator(Ans, LengthOfList, IncrementedD, Res)
-    .
-
-shellIterator(_, [], []) :- !.
-shellIterator(Gap, List, List) :- length(List, ListLength), Gap > ListLength - 1, !.
-shellIterator(Gap, List, [H|Res]) :- swapInGap(Gap, List, [H|Ans]), shellIterator(Gap, Ans, Res).
-
-swapInGap(Gap, List, Res) :- 
-    take(Gap, List, [H1|Left])
-    , append([H1|Left], [H2|Right], List)
-    , swapIfGreater(H1, H2, HRes1, HRes2)
-    , append([HRes1|Left], [HRes2|Right], Res)
-    .
-
-swapIfGreater(X1, X2, X2, X1) :- X1 > X2, !.
-swapIfGreater(X1, X2, X1, X2).
-
-% #3.2
-sort_3() :-
-    write('list? ')
-    , read(InputList)
-    , nl
-    , write('answer: ')
-    , shell(InputList, Res)
-    , write(Res)
-    .
-    
 % #4.1
-sortn(L1, L2) :- permutation(L1, L2), sorted(L2),!.
-permutation(L, [H|T]) :- append(V, [H|U], L), append(V, U, W), permutation(W, T).
-permutation([], []).
-sorted([_]).
-sorted([X,Y|T]) :- order(X,Y), sorted([Y|T]).
+common_call_4(Z) :- write("list? "), read(X), nl, call(Z, X, L2), write("answer: "), write(L2).
+
 order(X, Y) :- X =< Y.
 
-sort_4_1() :-
-    write('list? ')
-    , read(InputList)
-    , nl
-    , write('answer: ')
-    , sortn(InputList, Res)
-    , write(Res)
-    .
-    
+sorted([_]).
+sorted([X, Y|T]) :- order(X, Y), sorted([Y|T]).
+
+permutation(L, [H|T]) :- append(V, [H|U], L), append(V, U, W), permutation(W, T).
+permutation([], []).
+
+sort_41(L1, L2) :- permutation(L1, L2), sorted(L2), !.
+
+sort_4_1 :- common_call_4(sort_41).
+
 % #4.2
-busort(L, S) :- swap(L, M), !, busort(M, S).
-busort(L, L) :- !.
 swap([X, Y|R], [Y, X|R]) :- order(Y, X).
 swap([X|R], [X|R1]) :- swap(R, R1).
 
-sort_4_2() :-
-    write('list? ')
-    , read(InputList)
-    , nl
-    , write('answer: ')
-    , busort(InputList, Res)
-    , write(Res)
-    .
-    
+sort_42(L, S) :- swap(L, M), !, sort_42(M, S).
+sort_42(L, L) :- !.
+
+sort_4_2 :- common_call_4(sort_42).
+
 % #4.3
-insort([], []).
-insort([X|L], M) :- insort(L, N), insortx(X, N, M).
+sort_43([], []).
+sort_43([X|L], M) :- sort_43(L, N), insortx(X, N, M).
 insortx(X, [A|L], [A|M]) :- order(A, X), !, insortx(X, L, M).
 insortx(X, L, [X|L]).
 
-sort_4_3() :-
-    write('list? ')
-    , read(InputList)
-    , nl
-    , write('answer: ')
-    , insort(InputList, Res)
-    , write(Res)
-    .
-    
+sort_4_3 :- common_call_4(sort_43).
+
 % #4.4
-qsort([], []).
-qsort([H|Tail], S) :- split(H, Tail, Small, Big), qsort(Small,Small1), qsort(Big, Big1), append(Small1, [H|Big1], S).
+sort_44([], []).
+sort_44([H|Tail], S) :- split(H, Tail, Small, Big),
+                        sort_44(Small, Small1),
+                        sort_44(Big, Big1),
+                        append(Small1, [H|Big1], S).
+
 split(H, [A|Tail], [A|Small], Big) :- order(A, H), !, split(H, Tail, Small, Big).
 split(H, [A|Tail], Small, [A|Big]) :- split(H, Tail, Small, Big).
-split(_, [], [], []). 
+split(_, [], [], []).
 
-sort_4_4() :-
-    write('list? ')
-    , read(InputList)
-    , nl
-    , write('answer: ')
-    , qsort(InputList, Res)
-    , write(Res)
-    .
-    
+sort_4_4 :- common_call_4(sort_44).
+
 % #4.5
-common(L1, L2, Res) :- append(L1, L2, List), qsort(List, SortedList), makeUnique(SortedList, Res).
+set_list([], []).
+set_list([Head|Tail], L2) :- member(Head, Tail), !, set_list(Tail, L2).
+set_list([Head|Tail], [Head|L2]) :- set_list(Tail, L2).
 
-makeUnique([], []) :- !.
-makeUnique([H,H|Tail], Res) :- makeUnique([H|Tail], Res), !.
-makeUnique([H|Tail], [H|Res]) :- makeUnique(Tail, Res).
-
-% #4.7
-most_oft(List, Elems) :- qsort(List, SortedList), count_recur(SortedList, ['none'], 0, Elems, _).
-
-count_recur(List, MaxElems, MaxAmount, MaxElemsRes, MaxAmountRes) :-
-    append([H|Left], [H2|Rest], List),
-    append(_, [H], [H|Left]),
-    H \= H2,
-    length([H|Left], NewAmount),
-    (
-        MaxAmount > NewAmount,
-        append([], MaxElems, NewMaxElems),
-        NewMaxAmount is MaxAmount
-    ;
-        MaxAmount < NewAmount,
-        NewMaxElems is H,
-        % append([], [H], NewMaxElems),
-        NewMaxAmount is NewAmount
-    ;
-        MaxAmount is NewAmount,
-        (
-            is_list(MaxElems),
-            append([H], MaxElems, NewMaxElems)
-        ;
-            not(is_list(MaxElems)),
-            append([H], [MaxElems], NewMaxElems)
-        
-        ),
-        NewMaxAmount is MaxAmount
-    ),
-    count_recur([H2|Rest], NewMaxElems, NewMaxAmount, MaxElemsRes, MaxAmountRes),
-    !
-    .
-    
-count_recur(List, MaxElems, MaxAmount, MaxElemsRes, MaxAmountRes) :-
-    append([H], Left, List),
-    length([H|Left], NewAmount),
-    (
-        MaxAmount > NewAmount,
-        append([], MaxElems, MaxElemsRes),
-        MaxAmountRes is MaxAmount
-    ;
-        MaxAmount < NewAmount,
-        MaxElemsRes is H,
-        % append([], [H], MaxElemsRes),
-        MaxAmountRes is NewAmount
-    ;
-        MaxAmount is NewAmount,
-        (
-            is_list(MaxElems),
-            append([H], MaxElems, MaxElemsRes)
-        ;
-            not(is_list(MaxElems)),
-            append([H], [MaxElems], MaxElemsRes)
-        
-        ),
-        MaxAmountRes is MaxAmount
-    ),
-    !
-    .
+common(L1, L2, L3) :- append(L1, L2, Temp), set_list(Temp, Temp2), sort_44(Temp2, L3), !.
