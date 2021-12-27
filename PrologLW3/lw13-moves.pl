@@ -145,3 +145,34 @@ windowPath(Start, Goal, List, Res, Windows, WindowsRes) :-
     NewWindows is Windows + WindowsInThisRoom,
     windowPath(Next, Goal, NewList, Res, NewWindows, WindowsRes)
     .
+
+/* 5.10 #4 Найти кратчайший путь, проходящий через все комнаты с кладом   (клад в комнате обозначается знаком $) */
+
+treasure(g).
+treasure(l).
+
+subset(_, []).
+subset(List, [H|Tail]) :-
+    member(H, List),
+    subset(List, Tail).
+
+pathBacktrack(Goal, Goal, Ans, Ans).  % could backtrack if needed
+pathBacktrack(Start, Goal, List, Res) :-
+    isDoor(Start, Next),
+    append(List, [Next], NewList),
+    length(NewList, NewListLength),
+
+    findall(X, room(X), AllRooms),
+    length(AllRooms, RoomsCount),
+
+    RoomsCount >= NewListLength,
+
+    pathBacktrack(Next, Goal, NewList, Res)
+    .
+
+path10 :-
+    findall(Treasure, treasure(Treasure), TreasureList),
+    findall(Res, (pathBacktrack(a, _, [], Res), subset(Res, TreasureList)), List),
+    path9Iterate(List, [], 9999, Best, _),
+    write(Best),
+    nl.
