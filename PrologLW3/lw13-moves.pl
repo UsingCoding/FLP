@@ -157,7 +157,7 @@ subset(List, [H|Tail]) :-
     subset(List, Tail).
 
 pathBacktrack(Goal, Goal, Ans, Ans).  % could backtrack if needed
-pathBacktrack(Start, Goal, List, Res) :-
+pathBacktrack(Start, Goal, List) :-
     isDoor(Start, Next),
     append(List, [Next], NewList),
     length(NewList, NewListLength),
@@ -167,12 +167,12 @@ pathBacktrack(Start, Goal, List, Res) :-
 
     RoomsCount >= NewListLength,
 
-    pathBacktrack(Next, Goal, NewList, Res)
+    pathBacktrack(Next, Goal, NewList)
     .
 
 path10 :-
     findall(Treasure, treasure(Treasure), TreasureList),
-    findall(Res, (pathBacktrack(a, _, [], Res), subset(Res, TreasureList)), List),
+    findall(Res, (pathBacktrack(a, _, []), subset(Res, TreasureList)), List),
     path9Iterate(List, [], 9999, Best, _),
     write(Best),
     nl.
